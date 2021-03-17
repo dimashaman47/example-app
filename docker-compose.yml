@@ -24,7 +24,7 @@ services:
     node:
         image: node:latest
         ports:
-            - '3000:3000'
+            - '${NUXT_PORT:-3000}:8080'
         tty: true
         working_dir: /var/www/client/
         entrypoint: ["sh", "-c", "yarn install && yarn dev"]
@@ -44,6 +44,11 @@ services:
             MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
         volumes:
             - 'sailmysql:/var/lib/mysql'
+        entrypoint:
+              sh -c "
+                echo 'CREATE DATABASE IF NOT EXISTS '${DB_DATABASE}'; CREATE DATABASE IF NOT EXISTS example-app_test;' > /docker-entrypoint-initdb.d/init.sql;
+                /usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+              "
         networks:
             - sail
         healthcheck:
